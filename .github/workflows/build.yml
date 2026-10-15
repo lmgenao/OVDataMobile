@@ -14,18 +14,18 @@ jobs:
     - name: Descargar Repositorio Usuario
       uses: actions/checkout@v4
 
-    # 2. Configurar Node.js (Actualizado a v22 para compatibilidad con Capacitor)
+    # 2. Configurar Node.js (v22 para compatibilidad con Capacitor)
     - name: Configurar Node.js
       uses: actions/setup-node@v4
       with:
         node-version: 22
 
-    # 3. Configurar Java JDK (Requisito para compilación de Android Studio)
+    # 3. Configurar Java JDK (Actualizado a v21 para solucionar el error de source release)
     - name: Configurar Java JDK
       uses: actions/setup-java@v4
       with:
         distribution: 'zulu'
-        java-version: '17'
+        java-version: '21'
 
     # 4. Instalar las herramientas de control de Android
     - name: Instalar Dependencias de Capacitor
