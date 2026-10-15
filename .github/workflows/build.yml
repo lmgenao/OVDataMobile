@@ -10,22 +10,30 @@ jobs:
     runs-on: macos-latest
 
     steps:
-    - name: Descargar Repositorio
+    # 1. Descarga los archivos de tu repositorio actual
+    - name: Descargar Repositorio Usuario
       uses: actions/checkout@v4
 
-    - name: Clonar Estructura WebView Limpia
-      run: |
-        rm -rf ios_wrapper
-        git clone "https://github.com" ios_wrapper
-        cd ios_wrapper
-        # Reemplazar la URL por defecto del contenedor por tu link de OVChat
-        sed -i '' 's|https://pwa-to-ios-wrapper.vercel.app|https://github.io|g' "PWA to iOS wrapper/ViewController.swift"
+    # 2. Descarga de forma nativa la estructura limpia del empaquetador sin usar 'git clone' manual
+    - name: Descargar Contenedor WebView Oficial
+      uses: actions/checkout@v4
+      with:
+        repository: 'mizand/PWA-to-iOS-wrapper'
+        path: 'ios_wrapper'
 
+    # 3. Inyectar tu link de OVChat directamente en el código de Apple
+    - name: Configurar Redirección de la Aplicación
+      run: |
+        cd ios_wrapper
+        sed -i '' 's|https://vercel.app|https://github.io|g' "PWA to iOS wrapper/ViewController.swift"
+
+    # 4. Compilar el entorno real con el motor nativo de Xcode
     - name: Compilar Contenedor con Xcode Native
       run: |
         cd ios_wrapper
         xcodebuild -project "PWA to iOS wrapper.xcodeproj" -scheme "PWA to iOS wrapper" -configuration Debug -sdk iphoneos ONLY_ACTIVE_ARCH=NO CODE_SIGNING_ALLOWED=NO OBJROOT=$PWD/build SYMROOT=$PWD/build
 
+    # 5. Empaquetar y comprimir la estructura en un archivo .IPA limpio para Windows
     - name: Empaquetar Estructura en archivo .IPA
       run: |
         mkdir -p build/Payload
@@ -38,6 +46,7 @@ jobs:
         cd build
         zip -r OVData.ipa Payload/
 
+    # 6. Subir el archivo final empaquetado a la pestaña de Actions
     - name: Subir Archivo Final Terminado
       uses: actions/upload-artifact@v4
       with:
