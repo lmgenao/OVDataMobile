@@ -18,8 +18,8 @@ jobs:
         rm -rf ios_wrapper
         git clone "https://github.com" ios_wrapper
         cd ios_wrapper
-        # Configurar el contenedor nativo para que abra la interfaz de tu OVChat
-        sed -i '' 's|https://vercel.app|https://github.io|g' "PWA to iOS wrapper/ViewController.swift"
+        # Reemplazar la URL por defecto del contenedor por tu link de OVChat
+        sed -i '' 's|https://pwa-to-ios-wrapper.vercel.app|https://github.io|g' "PWA to iOS wrapper/ViewController.swift"
 
     - name: Compilar Contenedor con Xcode Native
       run: |
