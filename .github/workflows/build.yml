@@ -14,44 +14,45 @@ jobs:
     - name: Descargar Repositorio Usuario
       uses: actions/checkout@v4
 
-    # 2. Configurar Node y Java en el servidor (Requisitos obligatorios de Android)
+    # 2. Configurar Node.js (Actualizado a v22 para compatibilidad con Capacitor)
     - name: Configurar Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: 20
+        node-version: 22
 
+    # 3. Configurar Java JDK (Requisito para compilación de Android Studio)
     - name: Configurar Java JDK
       uses: actions/setup-java@v4
       with:
         distribution: 'zulu'
         java-version: '17'
 
-    # 3. Instalar las dependencias de Capacitor para la vista móvil
+    # 4. Instalar las herramientas de control de Android
     - name: Instalar Dependencias de Capacitor
       run: |
         npm install
         npm install @capacitor/cli @capacitor/core @capacitor/android
 
-    # 4. Crear la estructura web fija apuntando a tu OVChat listo en GitHub Pages
+    # 5. Crear la vista de entrada móvil fija apuntando a tu chat en la nube
     - name: Vincular URL de la Aplicación
       run: |
         mkdir -p www
         echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>OVChat</title><script>window.location.href = "https://github.io";</script></head><body style="background:#000;color:#00f0ff;display:flex;justify-content:center;align-items:center;height:100vh;"><h2>Conectando al Servidor de OVChat...</h2></body></html>' > www/index.html
 
-    # 5. Inicializar la plantilla de Android Studio de forma local en la nube
+    # 6. Generar la estructura limpia de Android Studio en el servidor
     - name: Inicializar Entorno Android
       run: |
         rm -rf android
         npx cap add android
         npx cap sync android
 
-    # 6. Compilar el archivo APK binario real
+    # 7. Compilar el archivo APK binario real
     - name: Construir Paquete APK (Debug)
       run: |
         cd android
         ./gradlew assembleDebug
 
-    # 7. Subir el archivo APK terminado a la sección de descargas de GitHub
+    # 8. Subir el APK terminado a la pestaña de Actions para tu descarga
     - name: Subir Archivo APK Terminado
       uses: actions/upload-artifact@v4
       with:
