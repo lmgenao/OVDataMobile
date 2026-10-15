@@ -13,7 +13,7 @@ jobs:
     - name: Descargar Repositorio
       uses: actions/checkout@v4
 
-    - name: Configurar Node.js (Forzar Entorno Seguro)
+    - name: Configurar Node.js
       uses: actions/setup-node@v4
       with:
         node-version: 24
@@ -26,29 +26,28 @@ jobs:
     - name: Crear Estructura de Entrada Nativa
       run: |
         mkdir -p www
-        echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>OV Data</title><script>window.location.href = "http://192.168.1.15:8501";</script></head><body><h2>Conectando...</h2></body></html>' > www/index.html
+        echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>OV Data</title><script>window.location.href = "https://github.com";</script></head><body><h2>Conectando...</h2></body></html>' > www/index.html
 
-    - name: Regenerar Entorno Nativo iOS
+    - name: Construir y Forzar Proyecto iOS
       run: |
         rm -rf ios
         npx cap add ios
-        npx cap sync ios
+        npx cap copy ios
+        npx cap update ios
 
-    - name: Compilar Binario con Xcode (Mapeo de Arquitectura)
+    - name: Compilar Binario con Xcode
       run: |
         cd ios/App
         xcodebuild -workspace App.xcworkspace -scheme App -configuration Debug -sdk iphoneos ONLY_ACTIVE_ARCH=NO CODE_SIGNING_ALLOWED=NO
 
-    - name: Empaquetar Estructura mediante Búsqueda Dinámica
+    - name: Empaquetar Estructura en archivo .IPA
       run: |
         mkdir -p build/Payload
-        # Buscar el archivo .app compilado sin importar la ruta interna exacta del servidor Mac
         APP_PATH=$(find ios/App -name "App.app" -type d | head -n 1)
         if [ -z "$APP_PATH" ]; then
-          echo "ERROR: No se encontró el binario App.app compilado."
+          echo "ERROR: No se encontró el binario App.app"
           exit 1
         fi
-        echo "Binario localizado en: $APP_PATH"
         cp -r "$APP_PATH" build/Payload/
         cd build
         zip -r OVData.ipa Payload/
