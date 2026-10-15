@@ -13,10 +13,10 @@ jobs:
     - name: Descargar Repositorio
       uses: actions/checkout@v4
 
-    - name: Configurar Node.js
+    - name: Configurar Node.js (Forzar Entorno Seguro)
       uses: actions/setup-node@v4
       with:
-        node-version: 18
+        node-version: 24
 
     - name: Instalar Dependencias del Núcleo
       run: |
@@ -34,15 +34,22 @@ jobs:
         npx cap add ios
         npx cap sync ios
 
-    - name: Compilar Binario con Xcode
+    - name: Compilar Binario con Xcode (Mapeo de Arquitectura)
       run: |
         cd ios/App
-        xcodebuild -workspace App.xcworkspace -scheme App -configuration Debug -sdk iphoneos OBJROOT=$PWD/build SYMROOT=$PWD/build ONLY_ACTIVE_ARCH=NO
-        
-    - name: Empaquetar Estructura en archivo .IPA
+        xcodebuild -workspace App.xcworkspace -scheme App -configuration Debug -sdk iphoneos ONLY_ACTIVE_ARCH=NO CODE_SIGNING_ALLOWED=NO
+
+    - name: Empaquetar Estructura mediante Búsqueda Dinámica
       run: |
         mkdir -p build/Payload
-        cp -r ios/App/build/build/Debug-iphoneos/App.app build/Payload/
+        # Buscar el archivo .app compilado sin importar la ruta interna exacta del servidor Mac
+        APP_PATH=$(find ios/App -name "App.app" -type d | head -n 1)
+        if [ -z "$APP_PATH" ]; then
+          echo "ERROR: No se encontró el binario App.app compilado."
+          exit 1
+        fi
+        echo "Binario localizado en: $APP_PATH"
+        cp -r "$APP_PATH" build/Payload/
         cd build
         zip -r OVData.ipa Payload/
 
