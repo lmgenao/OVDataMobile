@@ -1,0 +1,9 @@
+{
+  "appId": "com.ovdata.app",
+  "appName": "OV Data",
+  "webDir": "www",
+  "server": {
+    "cleartext": true,
+    "allowNavigation": ["*"]
+  }
+}
