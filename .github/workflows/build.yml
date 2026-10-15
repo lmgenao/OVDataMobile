@@ -1,4 +1,4 @@
-name: Compilar IPA de OVChat
+name: Compilar APK de OVChat
 
 on:
   push:
@@ -7,37 +7,53 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
 
     steps:
-    # 1. Clonar tus archivos de configuración base
+    # 1. Descargar los archivos de tu repositorio actual
     - name: Descargar Repositorio Usuario
       uses: actions/checkout@v4
 
-    # 2. Generar el contenedor nativo híbrido de Apple desde cero en la nube
-    - name: Manufacturar Estructura de Apple Swift
-      run: |
-        mkdir -p App/Payload/App.app
-        
-        # Generar el archivo indexador con tu URL de OVChat integrada
-        echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>OVChat</title><script>window.location.href = "https://github.io";</script></head><body style="background:#000;color:#00f0ff;display:flex;justify-content:center;align-items:center;height:100vh;"><h2>Conectando al Servidor de OVChat...</h2></body></html>' > App/index.html
-        
-        # Inyectar las firmas y metadatos obligatorios que Apple exige para los archivos .plist
-        echo '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://apple.com"><plist version="1.0"><dict><key>CFBundleIdentifier</key><string>com.ovchat.app</string><key>CFBundleName</key><string>OVChat</string><key>CFBundlePackageType</key><string>APPL</string><key>CFBundleShortVersionString</key><string>1.0</string><key>CFBundleVersion</key><string>1</string><key>LSRequiresIPhoneOS</key><true/><key>NSAppTransportSecurity</key><dict><key>NSAllowsArbitraryLoads</key><true/></dict></dict></plist>' > App/Payload/App.app/Info.plist
-        
-        cp App/index.html App/Payload/App.app/index.html
+    # 2. Configurar Node y Java en el servidor (Requisitos obligatorios de Android)
+    - name: Configurar Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
 
-    # 3. Comprimir y empaquetar el binario final directo para Windows
-    - name: Empaquetar y Compilar archivo .IPA
-      run: |
-        cd App
-        zip -r OVChat.ipa Payload/
-        mkdir ../build
-        mv OVChat.ipa ../build/
+    - name: Configurar Java JDK
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'zulu'
+        java-version: '17'
 
-    # 4. Enviar el archivo final a la pestaña de Actions para su descarga
-    - name: Subir Archivo Final Terminado
+    # 3. Instalar las dependencias de Capacitor para la vista móvil
+    - name: Instalar Dependencias de Capacitor
+      run: |
+        npm install
+        npm install @capacitor/cli @capacitor/core @capacitor/android
+
+    # 4. Crear la estructura web fija apuntando a tu OVChat listo en GitHub Pages
+    - name: Vincular URL de la Aplicación
+      run: |
+        mkdir -p www
+        echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>OVChat</title><script>window.location.href = "https://github.io";</script></head><body style="background:#000;color:#00f0ff;display:flex;justify-content:center;align-items:center;height:100vh;"><h2>Conectando al Servidor de OVChat...</h2></body></html>' > www/index.html
+
+    # 5. Inicializar la plantilla de Android Studio de forma local en la nube
+    - name: Inicializar Entorno Android
+      run: |
+        rm -rf android
+        npx cap add android
+        npx cap sync android
+
+    # 6. Compilar el archivo APK binario real
+    - name: Construir Paquete APK (Debug)
+      run: |
+        cd android
+        ./gradlew assembleDebug
+
+    # 7. Subir el archivo APK terminado a la sección de descargas de GitHub
+    - name: Subir Archivo APK Terminado
       uses: actions/upload-artifact@v4
       with:
-        name: Aplicacion-OVChat-IPA
-        path: build/OVChat.ipa
+        name: Aplicacion-OVChat-APK
+        path: android/app/build/outputs/apk/debug/app-debug.apk
