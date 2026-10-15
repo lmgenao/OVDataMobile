@@ -15,10 +15,9 @@ jobs:
 
     - name: Clonar Estructura WebView Limpia
       run: |
-        git clone https://github.com ios_wrapper
+        git clone "https://github.com" ios_wrapper
         cd ios_wrapper
-        # Modificar la URL de inicio del contenedor nativo directamente en el archivo de configuración de Apple
-        sed -i '' 's|https://vercel.app|https://github.com|g' PWA\ to\ iOS\ wrapper/ViewController.swift
+        sed -i '' 's|https://vercel.app|https://github.com|g' "PWA to iOS wrapper/ViewController.swift"
 
     - name: Compilar Contenedor con Xcode Native
       run: |
