@@ -10,18 +10,18 @@ jobs:
     runs-on: macos-latest
 
     steps:
-    # 1. Descarga los archivos de tu repositorio actual
+    # 1. Descargar los archivos de tu repositorio actual
     - name: Descargar Repositorio Usuario
       uses: actions/checkout@v4
 
-    # 2. Descarga de forma nativa la estructura limpia del empaquetador sin usar 'git clone' manual
-    - name: Descargar Contenedor WebView Oficial
-      uses: actions/checkout@v4
-      with:
-        repository: 'mizand/PWA-to-iOS-wrapper'
-        path: 'ios_wrapper'
+    # 2. Descargar la estructura limpia de Apple en un ZIP independiente sin APIs restrictivas
+    - name: Descargar Contenedor WebView Seguro
+      run: |
+        curl -L "https://github.com" -o wrapper.zip
+        unzip wrapper.zip
+        mv PWA-to-iOS-wrapper-master ios_wrapper
 
-    # 3. Inyectar tu link de OVChat directamente en el código de Apple
+    # 3. Configurar tu link de OVChat directamente en el código fuente de Apple
     - name: Configurar Redirección de la Aplicación
       run: |
         cd ios_wrapper
