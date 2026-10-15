@@ -1,4 +1,4 @@
-name: Compilar IPA de OV Data
+name: Compilar IPA de OVChat
 
 on:
   push:
@@ -14,12 +14,12 @@ jobs:
     - name: Descargar Repositorio Usuario
       uses: actions/checkout@v4
 
-    # 2. Descargar la estructura limpia de Apple en un ZIP independiente sin APIs restrictivas
+    # 2. Descargar la estructura limpia de Apple apuntando a la rama MAIN real
     - name: Descargar Contenedor WebView Seguro
       run: |
         curl -L "https://github.com" -o wrapper.zip
         unzip wrapper.zip
-        mv PWA-to-iOS-wrapper-master ios_wrapper
+        mv PWA-to-iOS-wrapper-main ios_wrapper
 
     # 3. Configurar tu link de OVChat directamente en el código fuente de Apple
     - name: Configurar Redirección de la Aplicación
@@ -44,11 +44,11 @@ jobs:
         fi
         cp -r "$APP_PATH" build/Payload/
         cd build
-        zip -r OVData.ipa Payload/
+        zip -r OVChat.ipa Payload/
 
     # 6. Subir el archivo final empaquetado a la pestaña de Actions
     - name: Subir Archivo Final Terminado
       uses: actions/upload-artifact@v4
       with:
-        name: Aplicacion-OVData-IPA
-        path: build/OVData.ipa
+        name: Aplicacion-OVChat-IPA
+        path: build/OVChat.ipa
