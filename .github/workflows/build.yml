@@ -10,24 +10,24 @@ jobs:
     runs-on: macos-latest
 
     steps:
-    # 1. Descargar los archivos de tu repositorio actual
+    # 1. Descargar los archivos de tu repositorio actual de OVChat
     - name: Descargar Repositorio Usuario
       uses: actions/checkout@v4
 
-    # 2. Descargar la estructura limpia de Apple apuntando a la rama MAIN real
+    # 2. Descargar el contenedor WebView de forma nativa sin usar comandos curl
     - name: Descargar Contenedor WebView Seguro
-      run: |
-        curl -L "https://github.com" -o wrapper.zip
-        unzip wrapper.zip
-        mv PWA-to-iOS-wrapper-main ios_wrapper
+      uses: actions/checkout@v4
+      with:
+        repository: 'mizand/PWA-to-iOS-wrapper'
+        path: 'ios_wrapper'
 
-    # 3. Configurar tu link de OVChat directamente en el código fuente de Apple
+    # 3. Configurar tu link de OVChat directamente en el código de Apple
     - name: Configurar Redirección de la Aplicación
       run: |
         cd ios_wrapper
         sed -i '' 's|https://vercel.app|https://github.io|g' "PWA to iOS wrapper/ViewController.swift"
 
-    # 4. Compilar el entorno real con el motor nativo de Xcode
+    # 4. Compilar el entorno con el motor nativo de Xcode
     - name: Compilar Contenedor con Xcode Native
       run: |
         cd ios_wrapper
